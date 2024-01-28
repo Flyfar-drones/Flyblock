@@ -1,10 +1,17 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <!--CDNs-->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Abel&display=swap" rel="stylesheet"> 
+    <link href="https://fonts.googleapis.com/css2?family=Abel&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js" type="text/javascript"></script>
+
     <link rel="stylesheet" href="styles.css">
+    <script src="main.js"></script>
   </head>
   <body>
     <div class="topnav">
@@ -21,7 +28,23 @@
     </div>
     <div class="control-panel">
         <div class="panel-item">
+          <div id="raw-control">
+            <div id="text-left"><h3>Turn<br> left</h3></div>
+            <div class="control-pad"></div>
+            <div id="text-right"><h3>Turn<br> Right</h3></div>
 
+            <div class="control-but"><i class="fa-solid fa-arrow-left fa-rotate-by fa-2x" style="--fa-rotate-angle: 45deg;"></i></div>
+            <div class="control-but"><i class="fa-solid fa-arrow-up fa-2x"></i></div>
+            <div class="control-but"><i class="fa-solid fa-arrow-right fa-rotate-by fa-2x" style="--fa-rotate-angle: -45deg;"></i></div>
+
+            <div class="control-but"><i class="fa-solid fa-arrow-left fa-2x"></i></div>
+            <div class="control-pad"></div>
+            <div class="control-but"><i class="fa-solid fa-arrow-right fa-2x"></i></div>
+
+            <div class="control-pad"></div>
+            <div class="control-but"><i class="fa-solid fa-arrow-down fa-2x"></i></div>
+            <div class="control-pad"></div>
+          </div>
         </div>
         <div class="panel-item">
             <button id="takeoff-but" class="action-button">Take off</button>
@@ -29,8 +52,11 @@
         <div class="panel-item">
             <button id="land-but" class="action-button">Land</button>
         </div>
-        <div class="panel-item">
-
+        <div class="panel-item" id="joystick">
+          <span id="bot-circle">
+            <span id="stat-circle"></span>
+            <span id="top-circle"></span>
+          </span>
         </div>
     </div>
   </body>
