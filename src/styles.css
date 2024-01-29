@@ -189,3 +189,36 @@ button{
   background-color: #303030;
   cursor: pointer;
 }
+
+#drone-connection{
+  background-color: #303030;
+  border-radius: 5px;
+  padding: 15px;
+}
+
+.settings-button{
+  padding: 5px;
+  border-radius: 5px;
+  margin-top: 20px;
+}
+
+.settings-button:hover{
+  background-color: #454545;
+  color: white;
+  transition-duration: 0.5s;
+}
+
+.marker{
+  width: 20px;
+  height: 20px;
+  float: right;
+  border-radius: 15px;
+}
+
+#marker-red{
+  background-color: red;
+}
+
+#marker-green{
+  background-color: green;
+}
