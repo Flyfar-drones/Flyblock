@@ -5,6 +5,11 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Abel&display=swap" rel="stylesheet"> 
     <link rel="stylesheet" href="styles.css">
+
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js" type="text/javascript"></script>
+
+    <script src="main.js"></script>
   </head>
   <body>
     <div class="topnav">
@@ -22,5 +27,14 @@
       </div>
     </div>
     <h1>Drone IDE</h1>
+    <script type="text/javascript">
+      // access the pre-bundled global API functions
+      const invoke = window.__TAURI__.invoke
+
+      // now we can call our Command!
+      // You will see "Welcome from Tauri" replaced
+      // by "Hello, World!"!
+      invoke('greet')
+    </script>
   </body>
 </html>
