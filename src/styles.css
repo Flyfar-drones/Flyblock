@@ -139,6 +139,12 @@ button{
   cursor: pointer;
 }
 
+.unselectable{
+  -webkit-user-select: none; /* Safari */
+  -ms-user-select: none; /* IE 10 and IE 11 */
+  user-select: none; /* Standard syntax */
+}
+
 .control-but:hover{
   background-color: #303030;
   color: white;

@@ -31,10 +31,8 @@
       // access the pre-bundled global API functions
       const invoke = window.__TAURI__.invoke
 
-      // now we can call our Command!
-      // You will see "Welcome from Tauri" replaced
-      // by "Hello, World!"!
-      invoke('greet')
+      //initial connection to drone
+      invoke('connect_to_drone')
     </script>
   </body>
 </html>

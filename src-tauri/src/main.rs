@@ -5,7 +5,7 @@
 
 //settings
 #[tauri::command]
-fn greet() {
+fn connect_to_drone() {
   println!("I was invoked from JS!");
 }
 
@@ -17,22 +17,22 @@ fn move_drone(side: String) {
 
 #[tauri::command]
 fn rotate_drone(rot_side: i32) {
-  println!("I was invoked from JS!");
+  println!("rotate {}", rot_side)
 }
 
 #[tauri::command]
 fn take_off() {
-  println!("I was invoked from JS!");
+  println!("take_off");
 }
 
 #[tauri::command]
 fn land() {
-  println!("I was invoked from JS!");
+  println!("land");
 }
 
 #[tauri::command]
 fn move_joystick(coords: [i32; 2]) {
-  println!("I was invoked from JS!");
+  println!("move_joystick: {} {}", coords[0], coords[1]);
 }
 
 //project
@@ -40,7 +40,7 @@ fn move_joystick(coords: [i32; 2]) {
 fn main() {
     tauri::Builder::default()
     //messsage handlers
-    .invoke_handler(tauri::generate_handler![greet, move_drone])
+    .invoke_handler(tauri::generate_handler![connect_to_drone, move_drone, rotate_drone, take_off, land, move_joystick])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
 }
