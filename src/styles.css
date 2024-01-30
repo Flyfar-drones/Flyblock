@@ -18,7 +18,7 @@ body{
   margin: 0;
 }
 
-p, h3{
+p, h3, h4{
   margin: 0;
 }
 
@@ -61,7 +61,7 @@ button{
   padding: 10px;
   position: fixed;
   height: 100%;
-  width: 150px;
+  width: 130px;
   background-color: #454545;
   overflow-x: hidden;
   transition: 0.5s;
@@ -279,4 +279,30 @@ button{
 
 .indent{
   margin-right: 10px;
+}
+
+.proj-button{
+  padding: 5px 5px;
+  margin-top: 10px;
+}
+
+.proj-button:hover{
+  background-color: #303030;
+  color: #FFFFFF;
+}
+
+.proj-logo{
+  margin-right: 5px;
+}
+
+.switch-button{
+  border-radius: 0;
+  background-color: #454545;
+  color: white;
+  border: 1px solid #303030;
+  padding: 5px;
+}
+
+.switch-active{
+  background-color: #303030;
 }
