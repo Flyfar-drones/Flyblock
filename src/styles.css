@@ -228,3 +228,17 @@ button{
 #marker-green{
   background-color: green;
 }
+
+#popup{
+  z-index: 3;
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  background-color: #5e5c5c;
+  border-radius: 5px;
+  padding: 7px;
+}
+
+#close{
+  background-color: ;
+}

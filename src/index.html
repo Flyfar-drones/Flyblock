@@ -3,7 +3,9 @@
   <head>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Abel&display=swap" rel="stylesheet"> 
+    <link href="https://fonts.googleapis.com/css2?family=Abel&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+     
     <link rel="stylesheet" href="styles.css">
 
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
@@ -26,10 +28,12 @@
         <p>print("Test!")</p>
       </div>
     </div>
-    <h1>Drone IDE</h1>
+    <div id="popup">
+      <p id="info_message">Amogus<i class="fa-solid fa-xmark" id="close"></i></p>
+    </div>
     <script type="text/javascript">
       // access the pre-bundled global API functions
-      const invoke = window.__TAURI__.invoke
+      const {invoke} = window.__TAURI__.tauri
 
       //initial connection to drone
       invoke('connect_to_drone')

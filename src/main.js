@@ -20,3 +20,16 @@ $(document).ready(function(){
     }
   })
 })
+
+function connectivity_check(){
+  invoke('check_conn').then((message) => {
+    switch(message){
+      case "connected":
+        break
+      case "not_connected":
+        break
+    }
+  })
+}
+
+setInterval(connectivity_check, 2000)
