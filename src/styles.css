@@ -76,6 +76,7 @@ button{
   height: 100%;
   background-color: #303030;
   padding: 5px;
+  cursor: text;
 }
 
 /*
@@ -257,4 +258,25 @@ button{
   border-radius: 15px;
   float: left;
   margin: 12px;
+}
+
+#code-marker {
+  position: absolute;
+  width: 2px; /* Adjust the width of the cursor as needed */
+  height: 16px;
+  background-color: white; /* Set the color of the cursor */
+  animation: cursor-blink 0.8s infinite; /* Add a blinking animation */
+}
+
+@keyframes cursor-blink {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+.indent{
+  margin-right: 10px;
 }
