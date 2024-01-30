@@ -237,8 +237,24 @@ button{
   background-color: #5e5c5c;
   border-radius: 5px;
   padding: 7px;
+  visibility: hidden;
 }
 
 #close{
-  background-color: ;
+  background-color: #454545;
+  padding: 3px;
+  color: #858585;
+  border-radius: 5px;
+  margin: 5px;
+  margin-left: 15px;
+  cursor: pointer;
+}
+
+.marker-mod{
+  width: 10px;
+  height: 10px;
+  float: right;
+  border-radius: 15px;
+  float: left;
+  margin: 12px;
 }
