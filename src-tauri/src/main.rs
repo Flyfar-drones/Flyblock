@@ -15,7 +15,7 @@ struct Payload {
 }
 
 //glob variables (TODO: this is not really the safe way))
-static mut INITIAL_CONNECTION: bool = false;
+static mut CONNECTION: bool = false;
 static mut ALREADY_SENT_MESSAGE: bool = false;
 
 //message receivers
@@ -24,19 +24,20 @@ static mut ALREADY_SENT_MESSAGE: bool = false;
 #[tauri::command]
 fn connect_to_drone() {
   println!("I was invoked from JS!");
+  unsafe {ALREADY_SENT_MESSAGE = false}
 
   //TCP communiucation init
   let result = TcpStream::connect(format!("{ADDR}:{PORT}"));
   let mut tcp_stream = match result {
       Ok(tcp_stream) => {
         //drone connection approved
-        unsafe {INITIAL_CONNECTION = true;}
+        unsafe {CONNECTION = true;}
 
         tcp_stream
       },
       Err(e) => {
         //drone connection refused
-        unsafe {INITIAL_CONNECTION = false;}
+        unsafe {CONNECTION = false;}
 
         return println!("connection refused: {}", e)
       },
@@ -80,9 +81,10 @@ fn move_joystick(coords: [i32; 2]) {
 #[tauri::command]
 fn check_conn() -> String {
   unsafe {
+    println!("{}", ALREADY_SENT_MESSAGE);
     if ALREADY_SENT_MESSAGE == false{
       ALREADY_SENT_MESSAGE = true;
-      match INITIAL_CONNECTION{
+      match CONNECTION{
         true => "connected".into(),
         false => "not_connected".into(),
       }

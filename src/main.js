@@ -9,6 +9,13 @@ function popup_close(){
   $("#popup").hide()
 }
 
+function toggle(elem){
+  if ( elem.css('visibility') == 'hidden' )
+  elem.css('visibility','visible');
+  else
+  elem.css('visibility','hidden')
+}
+
 $(document).ready(function(){
   let joystick = $("#top-circle")
   position = joystick.position();
@@ -31,10 +38,7 @@ function connectivity_check(){
     switch(message){
       case "connected":
         //show "connected" popup
-        if ( $('#popup').css('visibility') == 'hidden' )
-          $('#popup').css('visibility','visible');
-        else
-          $('#popup').css('visibility','hidden')
+        toggle($("#popup"))
 
 
         //change popup elements
@@ -44,10 +48,7 @@ function connectivity_check(){
         break
       case "not_connected":
         //show "not connected" popup
-        if ( $('#popup').css('visibility') == 'hidden' )
-          $('#popup').css('visibility','visible');
-        else
-          $('#popup').css('visibility','hidden');
+        toggle($("#popup"))
 
         //change popup elements
         $("#in-text").text("drone not connected")
