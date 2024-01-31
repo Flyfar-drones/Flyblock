@@ -16,6 +16,7 @@
 
 body{
   margin: 0;
+  height: 100vh;
 }
 
 p, h3, h4{
@@ -58,19 +59,19 @@ button{
 */
 
 .leftpanel{
+  display: flex;
   padding: 10px;
-  position: fixed;
   height: 100%;
-  width: 130px;
+  width: 150px;
   background-color: #454545;
   overflow-x: hidden;
   transition: 0.5s;
   border-right: #5e5c5c 1px solid;
-  display: inline-block;
+  flex-direction: column;
 }
 
 .codepanel{
-  position: fixed;
+  display: flex;
   left: 150px;
   width: 100%;
   height: 100%;
@@ -261,7 +262,7 @@ button{
 }
 
 #code-marker {
-  position: absolute;
+  position: relative;
   width: 2px; /* Adjust the width of the cursor as needed */
   height: 16px;
   background-color: white; /* Set the color of the cursor */
@@ -295,6 +296,10 @@ button{
   margin-right: 5px;
 }
 
+#switch-container{
+  display: flex;
+}
+
 .switch-button{
   border-radius: 0;
   background-color: #454545;
@@ -312,36 +317,46 @@ button{
 */
 
 .codepanel-block{
-  position: fixed;
+  display: flex;
   left: 150px;
   width: 100%;
   height: 100%;
   background-color: #D9D9D9;
+  box-sizing: border-box;
   padding: 5px;
 }
 
-.rightpanel{
-  padding: 10px;
-  position: fixed;
+#container{
   height: 100%;
-  width: 130px;
+  display: flex;
+  z-index: 1;
+}
+
+.rightpanel{
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  height: 100%;
+  width: 180px;
   background-color: #454545;
   overflow-x: hidden;
   transition: 0.5s;
   border-right: #5e5c5c 1px solid;
-  display: inline-block;
-  right: 0px;
+  margin-left: auto;
+  z-index: 5;
+  position: relative;
 }
 
 #block-list{
   background-color: #303030;
-  width: 120px;
   height: 300px;
   margin-top: 10px;
   padding: 5px;
   overflow-y: scroll;
   overflow-x: hidden;
-  z-index: 5;
+  margin-right: 5px;
+  position: relative;
+  z-index: 6;
 }
 
 .block{
@@ -351,5 +366,6 @@ button{
   margin: 5px;
   border-radius: 5px;
   cursor: pointer;
-  z-index: 8;
+  z-index: 10;
+  position: relative;
 }
