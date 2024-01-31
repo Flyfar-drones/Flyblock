@@ -5,7 +5,9 @@ use std::io::{Read, Write};
 use std::time::Duration;
 use std::net::TcpStream;
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
-//use tokio::net::TcpStream;
+use lazy_static::lazy_static;
+use tokio::net::tcp;
+use std::sync::Mutex;
 
 //variables
 const PORT: u16 = 33333;
@@ -19,40 +21,49 @@ struct Payload {
 
 //glob variables (TODO: this is not really the safe way))
 static mut CONNECTION: bool = false;
-static mut ALREADY_SENT_MESSAGE: bool = false;
+  static mut ALREADY_SENT_MESSAGE: bool = false;
+lazy_static! {
+  static ref TCP_STREAM: Mutex<Option<TcpStream>> = Mutex::new(None);
+}
 
 //message receivers
- 
+
 //settings
 #[tauri::command]
 async fn connect_to_drone() {
   println!("I was invoked from JS!");
-  unsafe {ALREADY_SENT_MESSAGE = false}
+  unsafe {
+    ALREADY_SENT_MESSAGE = false;
 
-  let socket = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(192, 168, 4, 1)), PORT);
-  let result = TcpStream::connect_timeout(&socket, Duration::new(CONNECTION_TIME, 0));
-  let mut tcp_stream = match result {
-      Ok(tcp_stream) => {
-        //drone connection approved
-        unsafe {CONNECTION = true;}
+    let socket = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(192, 168, 4, 1)), PORT);
+    let result = TcpStream::connect_timeout(&socket, Duration::new(CONNECTION_TIME, 0));
+    let mut tcp_stream = match result {
+        Ok(tcp_stream) => {
+          //drone connection approved
+          unsafe {CONNECTION = true;}
 
-        tcp_stream
-      },
-      Err(e) => {
-        //drone connection refused
-        unsafe {CONNECTION = false;}
+          tcp_stream
+        },
+        Err(e) => {
+          //drone connection refused
+          unsafe {CONNECTION = false;}
 
-        return println!("connection refused: {}", e)
-      },
-  };
+          return println!("connection refused: {}", e)
+        },
+    };
 
-  tcp_stream.write_all(b"Hello").unwrap();
-  tcp_stream.flush().unwrap();
 
-  let mut buffer = [0, 255]; //TODO: možná tady bude problém že se nám přečte jen 255 bytů
-  let size = tcp_stream.read(&mut buffer).unwrap();
-  let message = String::from_utf8_lossy(&buffer[..size]);
-  println!("Server says: {}", message)
+    tcp_stream.write_all(b"Hello").unwrap();
+    tcp_stream.flush().unwrap();
+
+    let mut buffer = [0, 255]; //TODO: možná tady bude problém že se nám přečte jen 255 bytů
+    let size = tcp_stream.read(&mut buffer).unwrap();
+    let message = String::from_utf8_lossy(&buffer[..size]);
+    println!("Server says: {}", message);
+
+    let mut guard = TCP_STREAM.lock().unwrap();
+    *guard = Some(tcp_stream);
+  }
 }
 
 #[tauri::command]
@@ -65,6 +76,11 @@ fn send_connection_data() -> String{
       "not_connected".into()
     }
   }
+}
+
+#[tauri::command]
+fn send_test_data(){
+  tcp_stream
 }
 
 //control
@@ -115,7 +131,7 @@ fn check_conn() -> String {
 fn main() {
   tauri::Builder::default()
   //messsage handlers
-  .invoke_handler(tauri::generate_handler![connect_to_drone, move_drone, rotate_drone, take_off, land, move_joystick, check_conn, send_connection_data])
+  .invoke_handler(tauri::generate_handler![connect_to_drone, move_drone, rotate_drone, take_off, land, move_joystick, check_conn, send_connection_data, send_test_data])
   .run(tauri::generate_context!())
   .expect("error while running tauri application");
 }
