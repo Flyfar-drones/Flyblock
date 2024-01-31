@@ -329,7 +329,6 @@ button{
 #container{
   height: 100%;
   display: flex;
-  z-index: 1;
 }
 
 .rightpanel{
@@ -343,7 +342,6 @@ button{
   transition: 0.5s;
   border-right: #5e5c5c 1px solid;
   margin-left: auto;
-  z-index: 5;
   position: relative;
 }
 
@@ -356,7 +354,6 @@ button{
   overflow-x: hidden;
   margin-right: 5px;
   position: relative;
-  z-index: 6;
 }
 
 .block{
@@ -366,6 +363,8 @@ button{
   margin: 5px;
   border-radius: 5px;
   cursor: pointer;
-  z-index: 10;
   position: relative;
+  width: 100px;
+  height: 100px;
+  background-color: #303030;
 }
