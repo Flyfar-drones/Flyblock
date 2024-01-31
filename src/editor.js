@@ -39,6 +39,10 @@ $(document).ready(function(){
                     
                     if ($(`#line${curr_line} .line-content`).text().length == 0){
                         if (line_is_zero){
+                            if (curr_line == 1){
+                                return
+                            }
+
                             $(`#line${curr_line}`).remove()
                             curr_line -= 1
                             line_is_zero = false
@@ -96,6 +100,10 @@ $(document).ready(function(){
                         var slice1 = curr_value.slice(0, -selected_index)
                         var slice2 = curr_value.slice(-selected_index)
                     }
+                    
+                    if (e.keyCode == 32){ //backspace
+                        key = "&nbsp;"
+                    }
 
                     let out = ""
                     if(to_upper){
@@ -104,8 +112,8 @@ $(document).ready(function(){
                     else{
                         out = (slice1 + key.toLowerCase() + slice2)
                     }
-                    $(`#line${curr_line} .line-content`).text(out)
-
+                    $(`#line${curr_line} .line-content`).html(out)
+                    
                     let left_pix = parseInt($("#code-marker").css("left").slice(0, -2))
                     $("#code-marker").css({"left": `${left_pix + CURSOR_JUMP_LEFT}px`})
                 }
