@@ -26,6 +26,7 @@
         <div id="drone-connection">
           <p><span id="popup-message">Drone is not connected</span><span class="marker" id="marker-red"></span></p>
           <button class="settings-button" id="connect">Try to connect</button>
+          <button class="settings-button" id="test">Test connection</button>
         </div>
     </div>
     <div id="popup">
@@ -36,21 +37,43 @@
 
       $(document).ready(() => {
         invoke("send_connection_data").then((message) => {
-        switch(message){
-          case "connected":
-            $("#popup-message").text("Drone is connected")
-            $("#marker-red").attr("id","marker-green");
-            $("connect").prop('disabled', true);
-            break
-          case "not_connected":
-            console.log("drone not connected")
-            break
+          console.log(message)
+          switch(message){
+            case "connected":
+              $("#popup-message").text("Drone is connected")
+              $("#marker-red").attr("id","marker-green");
+              $("#connect").attr('disabled', "disabled");
+              break
+            case "not_connected":
+              console.log("drone not connected")
+              break
         }
       })
       })
 
       $("#connect").click(() => {
         invoke("connect_to_drone")
+      })
+      $("#test").click(() => {
+        invoke("send_test_data").then((message) => {
+          console.log(message)
+          switch(message){
+            case "ok":
+              //show "connected" popup
+              toggle($("#popup"))
+              $("#in-text").text("Drone test message successful")
+              $("#marker-red").attr("id","marker-green");
+
+              break
+            case "not_ok":
+              //show "connected" popup
+              toggle($("#popup"))
+              $("#in-text").text("Drone test message unsuccessful")
+              $("#marker-red").attr("id","marker-red");
+
+              break
+          }
+        })
       })
     </script>
   </body>
