@@ -2,11 +2,14 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use std::io::{Read, Write};
+use std::time::Duration;
 use std::net::TcpStream;
+use std::net::{IpAddr, Ipv4Addr, SocketAddr};
+//use tokio::net::TcpStream;
 
 //variables
-const ADDR: &str = "127.0.0.1";
-const PORT: &str = "9001";
+const PORT: u16 = 33333;
+const CONNECTION_TIME: u64 = 5;
 
 // the payload type must implement `Serialize` and `Clone`.
 #[derive(Clone, serde::Serialize)]
@@ -22,12 +25,12 @@ static mut ALREADY_SENT_MESSAGE: bool = false;
  
 //settings
 #[tauri::command]
-fn connect_to_drone() {
+async fn connect_to_drone() {
   println!("I was invoked from JS!");
   unsafe {ALREADY_SENT_MESSAGE = false}
 
-  //TCP communiucation init
-  let result = TcpStream::connect(format!("{ADDR}:{PORT}"));
+  let socket = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(192, 168, 4, 1)), PORT);
+  let result = TcpStream::connect_timeout(&socket, Duration::new(CONNECTION_TIME, 0));
   let mut tcp_stream = match result {
       Ok(tcp_stream) => {
         //drone connection approved

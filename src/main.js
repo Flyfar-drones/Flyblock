@@ -17,11 +17,15 @@ function toggle(elem){
 }
 
 function switch_to_code(elem){
-  $(elem)
+  if (!$(elem).hasClass("switch-active")){
+    window.location.href = "./index.html"
+  }
 }
 
 function switch_to_flyblock(elem){
-  $(elem)
+  if (!$(elem).hasClass("switch-active")){
+    window.location.href = "./flyblock.html"
+  }
 }
 
 $(document).ready(function(){
