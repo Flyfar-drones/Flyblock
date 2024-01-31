@@ -46,13 +46,25 @@ async fn connect_to_drone() {
       },
   };
 
-  tcp_stream.write_all(b"Hello server").unwrap();
+  tcp_stream.write_all(b"Hello").unwrap();
   tcp_stream.flush().unwrap();
 
   let mut buffer = [0, 255]; //TODO: možná tady bude problém že se nám přečte jen 255 bytů
   let size = tcp_stream.read(&mut buffer).unwrap();
   let message = String::from_utf8_lossy(&buffer[..size]);
   println!("Server says: {}", message)
+}
+
+#[tauri::command]
+fn send_connection_data() -> String{
+  unsafe {
+    if CONNECTION{
+      "connected".into()
+    }
+    else{
+      "not_connected".into()
+    }
+  }
 }
 
 //control
@@ -103,7 +115,7 @@ fn check_conn() -> String {
 fn main() {
   tauri::Builder::default()
   //messsage handlers
-  .invoke_handler(tauri::generate_handler![connect_to_drone, move_drone, rotate_drone, take_off, land, move_joystick, check_conn])
+  .invoke_handler(tauri::generate_handler![connect_to_drone, move_drone, rotate_drone, take_off, land, move_joystick, check_conn, send_connection_data])
   .run(tauri::generate_context!())
   .expect("error while running tauri application");
 }

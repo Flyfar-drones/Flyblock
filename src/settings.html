@@ -24,7 +24,7 @@
         <hr>
         <h2>Drone connectivity</h2>
         <div id="drone-connection">
-          <p>Drone is not connected <span class="marker" id="marker-red"></span></p>
+          <p><span id="popup-message">Drone is not connected</span><span class="marker" id="marker-red"></span></p>
           <button class="settings-button" id="connect">Try to connect</button>
         </div>
     </div>
@@ -33,6 +33,21 @@
     </div>
     <script>
       const invoke = window.__TAURI__.invoke
+
+      $(document).ready(() => {
+        invoke("send_connection_data").then((message) => {
+        switch(message){
+          case "connected":
+            $("#popup-message").text("Drone is connected")
+            $("#marker-red").attr("id","marker-green");
+            $("connect").prop('disabled', true);
+            break
+          case "not_connected":
+            console.log("drone not connected")
+            break
+        }
+      })
+      })
 
       $("#connect").click(() => {
         invoke("connect_to_drone")
