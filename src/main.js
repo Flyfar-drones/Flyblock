@@ -16,6 +16,14 @@ function toggle(elem){
   elem.css('visibility','hidden')
 }
 
+function switch_to_code(elem){
+  $(elem)
+}
+
+function switch_to_flyblock(elem){
+  $(elem)
+}
+
 $(document).ready(function(){
   let joystick = $("#top-circle")
   position = joystick.position();
