@@ -6,11 +6,20 @@ use std::time::Duration;
 use std::net::TcpStream;
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 use lazy_static::lazy_static;
-use tokio::net::tcp;
 use std::sync::Mutex;
+use std::mem::drop;
+
+//info
+//drone addr: 192.168.4.1
+//drone port: 33333
+
+//localhost info
+//localhost addr: 127.0.0.1
+//localhost port: 12345
 
 //variables
 const PORT: u16 = 33333;
+const DEV_PORT: u16 = 12345;
 const CONNECTION_TIME: u64 = 5;
 
 // the payload type must implement `Serialize` and `Clone`.
@@ -21,7 +30,7 @@ struct Payload {
 
 //glob variables (TODO: this is not really the safe way))
 static mut CONNECTION: bool = false;
-  static mut ALREADY_SENT_MESSAGE: bool = false;
+static mut ALREADY_SENT_MESSAGE: bool = false;
 lazy_static! {
   static ref TCP_STREAM: Mutex<Option<TcpStream>> = Mutex::new(None);
 }
@@ -35,7 +44,7 @@ async fn connect_to_drone() {
   unsafe {
     ALREADY_SENT_MESSAGE = false;
 
-    let socket = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(192, 168, 4, 1)), PORT);
+    let socket = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), DEV_PORT);
     let result = TcpStream::connect_timeout(&socket, Duration::new(CONNECTION_TIME, 0));
     let mut tcp_stream = match result {
         Ok(tcp_stream) => {
@@ -61,8 +70,7 @@ async fn connect_to_drone() {
     let message = String::from_utf8_lossy(&buffer[..size]);
     println!("Server says: {}", message);
 
-    let mut guard = TCP_STREAM.lock().unwrap();
-    *guard = Some(tcp_stream);
+    drop(tcp_stream);
   }
 }
 
@@ -80,7 +88,33 @@ fn send_connection_data() -> String{
 
 #[tauri::command]
 fn send_test_data(){
-  tcp_stream
+
+  let socket = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), DEV_PORT);
+  let result = TcpStream::connect_timeout(&socket, Duration::new(CONNECTION_TIME, 0));
+  let mut tcp_stream = match result {
+      Ok(tcp_stream) => {
+        //drone connection approved
+        unsafe {CONNECTION = true;}
+
+        tcp_stream
+      },
+      Err(e) => {
+        //drone connection refused
+        unsafe {CONNECTION = false;}
+
+        return println!("connection refused: {}", e)
+      },
+  };
+
+  tcp_stream.write_all(b"ledon").unwrap();
+  tcp_stream.flush().unwrap();
+
+  let mut buffer = [0, 255]; //TODO: možná tady bude problém že se nám přečte jen 255 bytů
+  let size = tcp_stream.read(&mut buffer).unwrap();
+  let message = String::from_utf8_lossy(&buffer[..size]);
+  println!("Server says: {}", message);
+
+  drop(tcp_stream);
 }
 
 //control
