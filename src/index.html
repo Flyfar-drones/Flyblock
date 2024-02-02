@@ -43,12 +43,13 @@
     <div id="popup">
       <p id="info_message"><span class="marker-mod" id="marker-red"></span><span id="in-text"></span><i class="fa-solid fa-xmark" id="close" onclick="popup_close()"></i></p>
     </div>
-    <script type="text/javascript">
+    <script>
       // access the pre-bundled global API functions
-      const {invoke} = window.__TAURI__.tauri
+      const { emit, listen } = window.__TAURI__.event
 
-      //initial connection to drone
-      invoke('connect_to_drone')
+      emit('test', {
+      theMessage: 'Tauri is awesome!',
+    })
     </script>
   </body>
 </html>

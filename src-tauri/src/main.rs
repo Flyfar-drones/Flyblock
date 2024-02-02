@@ -12,6 +12,7 @@ use tauri::State;
 use std::sync::Mutex;
 use std::mem::drop;
 use std::net::Shutdown;
+use tauri::Manager;
 
 //info
 //drone addr: 192.168.4.1
@@ -23,7 +24,7 @@ use std::net::Shutdown;
 
 //variables
 const PORT: u16 = 33333;
-//const DEV_PORT: u16 = 12345;
+const DEV_PORT: u16 = 12345;
 const CONNECTION_TIME: u64 = 5;
 
 // the payload type must implement `Serialize` and `Clone`.
@@ -35,9 +36,6 @@ struct Payload {
 //glob variables (TODO: this127 is not really the safe way))
 static mut CONNECTION: bool = false;
 static mut ALREADY_SENT_MESSAGE: bool = false;
-lazy_static! {
-  static ref TCP_STREAM: Mutex<Option<TcpStream>> = Mutex::new(None);
-}
 
 fn send_data(tcp_stream: State<TcpStream>, input: String) -> String{
   let mut stream = tcp_stream.inner();
@@ -158,29 +156,25 @@ fn check_conn() -> String {
 //project
 
 fn main() {
+  //initial connection
   //try initial connection
-  let socket = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(192, 168, 4, 1)), PORT);
-  let result = TcpStream::connect_timeout(&socket, Duration::new(CONNECTION_TIME, 0));
+  let socket = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), DEV_PORT);
+  let stream = TcpStream::connect_timeout(&socket, Duration::new(CONNECTION_TIME, 0)).expect("Server is offline?");
 
-  result.map(|stream| {
-    // If the result is Ok, return the TcpStream
-    unsafe{CONNECTION = true}
+  tauri::Builder::default()
+  .setup(|app| {
+    // listen to the `event-name` (emitted on any window)
+    let id_move = app.listen_global("test", |event| {
+      let data = event.payload().unwrap();
+      println!("{}", data);
+    });
 
-    tauri::Builder::default()
-    .manage(Mutex::new(stream))
-    //messsage handlers
-    .invoke_handler(tauri::generate_handler![connect_to_drone, move_drone, rotate_drone, take_off, land, move_joystick, check_conn, send_connection_data, send_test_data])
-    .run(tauri::generate_context!())
-    .expect("error while running tauri application");
-  }).unwrap_or_else(|err| {
-    // If the result is Err, handle the error (e.g., print an error message)
-    eprintln!("Error: {}", err);
-    unsafe{CONNECTION = false}
-
-    tauri::Builder::default()
-    //messsage handlers
-    .invoke_handler(tauri::generate_handler![connect_to_drone, move_drone, rotate_drone, take_off, land, move_joystick, check_conn, send_connection_data, send_test_data])
-    .run(tauri::generate_context!())
-    .expect("error while running tauri application");
-  });
+    // emit the `event-name` event to all webview windows on the frontend
+    app.emit_all("event-name", Payload { message: "Tauri is awesome!".into() }).unwrap();
+    Ok(())
+  })
+  //messsage handlers
+  .invoke_handler(tauri::generate_handler![connect_to_drone, move_drone, rotate_drone, take_off, land, move_joystick, check_conn, send_connection_data, send_test_data])
+  .run(tauri::generate_context!())
+  .expect("error while running tauri application");
 }
