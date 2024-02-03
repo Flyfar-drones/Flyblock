@@ -47,9 +47,9 @@
       // access the pre-bundled global API functions
       const { emit, listen } = window.__TAURI__.event
 
-      emit('drone-command', {
+      emit('connect-command', {
         command: "connect-to",
-        value: "none"
+        value: "test-conn"
       })
     </script>
   </body>

@@ -60,32 +60,57 @@
         </div>
         <script>
           const invoke = window.__TAURI__.invoke
+          const { emit, listen } = window.__TAURI__.event
 
           $("#move-forward").click(() => {
-            invoke("move_drone", {side: "forward"})
+            emit('drone-command', {
+              command: "move",
+              value: "forward"
+            })
           })
           $("#move-backward").click(() => {
-            invoke("move_drone", {side: "backward"})
+            emit('drone-command', {
+              command: "move",
+              value: "backward"
+            })
           })
           $("#move-right").click(() => {
-            invoke("move_drone", {side: "right"})
+            emit('drone-command', {
+              command: "move",
+              value: "right"
+            })
           })
           $("#move-left").click(() => {
-            invoke("move_drone", {side: "left"})
+            emit('drone-command', {
+              command: "move",
+              value: "left"
+            })
           })
 
           $("#turn-left").click(() => {
-            invoke("rotate_drone", {rotSide: -DRONE_TURN})
+            emit('drone-command', {
+              command: "move",
+              value: `${-DRONE_TURN}`
+            })
           })
           $("#turn-right").click(() => {
-            invoke("rotate_drone", {rotSide: DRONE_TURN})
+            emit('drone-command', {
+              command: "move",
+              value: `${DRONE_TURN}`
+            })
           })
 
           $("#takeoff-but").click(() => {
-            invoke("take_off")
+            emit('drone-command', {
+              command: "take-off",
+              value: "none"
+            })
           })
           $("#land-but").click(() => {
-            invoke("land")
+            emit('drone-command', {
+              command: "land",
+              value: "none"
+            })
           })
         </script>
     </div>

@@ -34,6 +34,7 @@
     </div>
     <script>
       const invoke = window.__TAURI__.invoke
+      const { emit, listen } = window.__TAURI__.event
 
       $(document).ready(() => {
         invoke("send_connection_data").then((message) => {
@@ -52,7 +53,10 @@
       })
 
       $("#connect").click(() => {
-        invoke("connect_to_drone")
+        emit('drone-command', {
+          command: "connect-to",
+          value: "none"
+        })
       })
       $("#test").click(() => {
         invoke("send_test_data").then((message) => {
