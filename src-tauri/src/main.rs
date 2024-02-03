@@ -84,10 +84,10 @@ fn main() {
       
       let command_type = deserialized["command"].as_str().unwrap();
       let command_value: String = deserialized["value"].to_string();
-      println!("{}", command_type.to_string());
+      println!("Command Type: {:?}", command_type);
 
       match command_type{
-        "connect-to" | "rotate" | "move-joystick" => {
+        "move" | "connect-to" | "rotate" | "move-joystick" => {
           send_data(tcp_stream.clone(), command_value);
         },
         "take-off" | "land" => {
