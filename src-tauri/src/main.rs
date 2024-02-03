@@ -9,10 +9,12 @@ use std::net::TcpStream;
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 use lazy_static::lazy_static;
 use tauri::State;
-use std::sync::Mutex;
+use std::sync::{Mutex, MutexGuard, Arc};
 use std::mem::drop;
 use std::net::Shutdown;
 use tauri::Manager;
+use std::collections::HashMap;
+use serde_json::Value;
 
 //info
 //drone addr: 192.168.4.1
@@ -37,8 +39,10 @@ struct Payload {
 static mut CONNECTION: bool = false;
 static mut ALREADY_SENT_MESSAGE: bool = false;
 
-fn send_data(tcp_stream: State<TcpStream>, input: String) -> String{
-  let mut stream = tcp_stream.inner();
+//other functions
+fn send_data(tcp_stream: Arc<Mutex<TcpStream>>, input: String) -> String{
+
+  let mut stream = tcp_stream.lock().unwrap();
 
   stream.write_all(input.as_bytes()).unwrap();
   stream.flush().unwrap();
@@ -47,24 +51,20 @@ fn send_data(tcp_stream: State<TcpStream>, input: String) -> String{
   let size = stream.read(&mut buffer).unwrap();
   let message = String::from_utf8_lossy(&buffer[..size]);
 
-  tcp_stream.shutdown(Shutdown::Both).expect("shutdown call failed");
-  drop(tcp_stream);
   return message.to_string();
 }
 
 //message receivers
 
 //settings
-#[tauri::command]
-fn connect_to_drone(stream: tauri::State<TcpStream>) {
-  let tcp_stream = stream.clone();
+fn connect_to_drone(tcp_stream: TcpStream) {
 
   println!("I was invoked from JS!");
   unsafe {
     ALREADY_SENT_MESSAGE = false;
 
-    let server_response = send_data(tcp_stream, "hello".to_string());
-    println!("Server says: {}", server_response);
+    //let server_response = send_data(tcp_stream, "hello".to_string());
+    //println!("Server says: {}", server_response);
   }
 }
 
@@ -81,8 +81,8 @@ fn send_connection_data() -> String{
 }
 
 #[tauri::command]
-fn send_test_data(stream: tauri::State<TcpStream>) -> String{
-  let tcp_stream = stream.clone();
+fn send_test_data(tcp_stream: TcpStream){
+  /*
   let server_response = send_data(tcp_stream, "ledon".to_string());
   let response = server_response.as_str();
 
@@ -93,50 +93,9 @@ fn send_test_data(stream: tauri::State<TcpStream>) -> String{
     "not_ok" => "not_ok".to_string().into(),
     &_ => return "random_error".to_string()
   }
+   */
 }
 
-//control
-#[tauri::command]
-fn move_drone(stream: tauri::State<TcpStream>, side: String) {
-  let tcp_stream = stream.clone();
-
-  println!("move {}", side);
-  send_data(tcp_stream, "move-".to_string() + &side);
-}
-
-#[tauri::command]
-fn rotate_drone(stream: tauri::State<TcpStream>, rot_side: i32) {
-  let tcp_stream = stream.clone();
-
-  println!("rotate {}", rot_side);
-  send_data(tcp_stream, "move-".to_string() + &rot_side.to_string());
-}
-
-#[tauri::command]
-fn take_off(stream: tauri::State<TcpStream>) {
-  let tcp_stream = stream.clone();
-
-  println!("take_off");
-  send_data(tcp_stream, "take_off".to_string());
-}
-
-#[tauri::command]
-fn land(stream: tauri::State<TcpStream>) {
-  let tcp_stream = stream.clone();
-
-  println!("land");
-  send_data(tcp_stream, "land".to_string());
-}
-
-#[tauri::command]
-fn move_joystick(stream: tauri::State<TcpStream>, coords: [i32; 2]) {
-  let tcp_stream = stream.clone();
-
-  println!("move_joystick: {} {}", coords[0], coords[1]);
-  send_data(tcp_stream, "joy-".to_string() + &coords[0].to_string() + &coords[1].to_string());
-}
-
-#[tauri::command]
 fn check_conn() -> String {
   unsafe {
     println!("{}", ALREADY_SENT_MESSAGE);
@@ -158,15 +117,35 @@ fn check_conn() -> String {
 fn main() {
   //initial connection
   //try initial connection
-  let socket = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), DEV_PORT);
-  let stream = TcpStream::connect_timeout(&socket, Duration::new(CONNECTION_TIME, 0)).expect("Server is offline?");
 
   tauri::Builder::default()
   .setup(|app| {
+
+    let socket = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), DEV_PORT);
+    let tcp_stream = Arc::new(Mutex::new(TcpStream::connect_timeout(&socket, Duration::new(CONNECTION_TIME, 0)).expect("Server is offline?")));
+
     // listen to the `event-name` (emitted on any window)
-    let id_move = app.listen_global("test", |event| {
+    let id_drone_command = app.listen_global("drone-command", move |event| {
       let data = event.payload().unwrap();
-      println!("{}", data);
+      let deserialized: Value = serde_json::from_str(&data).unwrap();
+      
+      let command_type: String = deserialized["command"].to_string();
+      let command_value: String = deserialized["value"].to_string();
+      
+      match command_type.as_str(){
+        "connect-to" => {
+          send_data(tcp_stream.clone(), command_value);
+        },
+        "move" => {
+          send_data(tcp_stream.clone(), command_value);
+        }
+        &_ => println!("tvoje matinka")
+      }
+    });
+    let id_test = app.listen_global("app", |event| {
+      let data = event.payload().unwrap();
+      let deserialized: Value = serde_json::from_str(&data).unwrap();
+      println!("{}", deserialized["command"])
     });
 
     // emit the `event-name` event to all webview windows on the frontend
@@ -174,7 +153,6 @@ fn main() {
     Ok(())
   })
   //messsage handlers
-  .invoke_handler(tauri::generate_handler![connect_to_drone, move_drone, rotate_drone, take_off, land, move_joystick, check_conn, send_connection_data, send_test_data])
   .run(tauri::generate_context!())
   .expect("error while running tauri application");
 }
