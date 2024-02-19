@@ -2,6 +2,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use std::io::{Read, Write};
+use std::thread::panicking;
 use std::time::Duration;
 use std::net::TcpStream;
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
@@ -67,7 +68,7 @@ fn check_conn() -> String {
 
 //project
 
-fn main() {
+fn main(){
   //initial connection
   //try initial connection
 
@@ -80,7 +81,7 @@ fn main() {
     //initial connection
     let init_conn = TcpStream::connect_timeout(&socket, Duration::new(CONNECTION_TIME, 0));
     match init_conn {
-      Ok(f)=> {
+      Ok(conn)=> {
         println!("connected to drone");
         connected = true;
         let tcp_stream = Arc::new(Mutex::new(TcpStream::connect_timeout(&socket, Duration::new(CONNECTION_TIME, 0)).unwrap()));
@@ -95,15 +96,30 @@ fn main() {
           println!("Command Type: {:?}", command_type);
 
           match command_type{
-            "move" | "connect-to" | "rotate" | "move-joystick" => {
-              send_data(tcp_stream.clone(), command_value);
+            "connect-to" => {
+              let return_message = send_data(tcp_stream.clone(), command_value);
+              if return_message == "ok"{
+              }
+              else{
+                panic!("not oke");
+              }
+            }
+            "move" | "rotate" | "move-joystick" => {
+              let return_message = send_data(tcp_stream.clone(), command_value);
+              if return_message == "ok"{
+
+              }
+              else{
+                panic!("not oke");
+              }
             },
             "take-off" | "land" => {
-              send_data(tcp_stream.clone(), command_type.to_string());
+              let return_message = send_data(tcp_stream.clone(), command_type.to_string());
             },
             _ => println!("tvoje matinka")
           }
         });
+
       },
       Err(e)=> {
          println!("not connected to drone");   //handled error
@@ -117,8 +133,6 @@ fn main() {
       }
     }
 
-    // emit the `event-name` event to all webview windows on the frontend
-    app.emit_all("event-name", Payload { message: "Tauri is awesome!".into() }).unwrap();
     Ok(())
   })
   //messsage handlers
