@@ -75,27 +75,47 @@ fn main() {
   .setup(|app| {
 
     let socket = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), DEV_PORT);
-    let tcp_stream = Arc::new(Mutex::new(TcpStream::connect_timeout(&socket, Duration::new(CONNECTION_TIME, 0)).expect("Server is offline?")));
+    let mut connected: bool = false;
 
-    // listen to the `event-name` (emitted on any window)
-    let id_drone_command = app.listen_global("drone-command", move |event| {
-      let data = event.payload().unwrap();
-      let deserialized: Value = serde_json::from_str(&data).unwrap();
-      
-      let command_type = deserialized["command"].as_str().unwrap();
-      let command_value: String = deserialized["value"].to_string();
-      println!("Command Type: {:?}", command_type);
+    //initial connection
+    let init_conn = TcpStream::connect_timeout(&socket, Duration::new(CONNECTION_TIME, 0));
+    match init_conn {
+      Ok(f)=> {
+        println!("connected to drone");
+        connected = true;
+        let tcp_stream = Arc::new(Mutex::new(TcpStream::connect_timeout(&socket, Duration::new(CONNECTION_TIME, 0)).unwrap()));
+        
+        // listen drone commands (drone is connected)
+        let id_drone_command = app.listen_global("drone-command", move |event| {
+          let data = event.payload().unwrap();
+          let deserialized: Value = serde_json::from_str(&data).unwrap();
+          
+          let command_type = deserialized["command"].as_str().unwrap();
+          let command_value: String = deserialized["value"].to_string();
+          println!("Command Type: {:?}", command_type);
 
-      match command_type{
-        "move" | "connect-to" | "rotate" | "move-joystick" => {
-          send_data(tcp_stream.clone(), command_value);
-        },
-        "take-off" | "land" => {
-          send_data(tcp_stream.clone(), command_type.to_string());
-        },
-        _ => println!("tvoje matinka")
+          match command_type{
+            "move" | "connect-to" | "rotate" | "move-joystick" => {
+              send_data(tcp_stream.clone(), command_value);
+            },
+            "take-off" | "land" => {
+              send_data(tcp_stream.clone(), command_type.to_string());
+            },
+            _ => println!("tvoje matinka")
+          }
+        });
+      },
+      Err(e)=> {
+         println!("not connected to drone");   //handled error
+         connected = false;
+
+         // listen drone commands (drone is connected)
+        let id_drone_command = app.listen_global("drone-command", move |event| {
+          let data = event.payload().unwrap();
+          let deserialized: Value = serde_json::from_str(&data).unwrap();
+        });
       }
-    });
+    }
 
     // emit the `event-name` event to all webview windows on the frontend
     app.emit_all("event-name", Payload { message: "Tauri is awesome!".into() }).unwrap();
